@@ -229,6 +229,8 @@ void test_suffix_tree_with_curated_examples() {
         
         assert(locs == correct_locs);
     }
+    
+    cerr << "All curated SuffixTree tests successful!" << endl;
 }
 
 void test_suffix_tree_with_randomized_examples() {
@@ -383,6 +385,8 @@ void test_suffix_tree_with_randomized_examples() {
             }
         }
     }
+    
+    cerr << "All randomized SuffixTree tests successful!" << endl;
 }
 
 vector<pair<size_t, size_t>> random_unions(size_t size) {
@@ -827,4 +831,6 @@ int main(void) {
     test_min_max_heap();
     test_union_find_with_curated_examples();
     test_union_find_with_random_examples();
+    test_suffix_tree_with_curated_examples();
+    test_suffix_tree_with_randomized_examples();
 }
