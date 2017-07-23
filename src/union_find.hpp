@@ -9,6 +9,10 @@
 
 #include <vector>
 #include <unordered_set>
+#include <cstdint>
+#include <algorithm>
+
+using namespace std;
 
 /**
  * A custom Union-Find data structure that supports merging a set of indices in
@@ -60,7 +64,7 @@ private:
 
 
 struct UnionFind::UFNode {
-    UFNode(size_t index) : head(index), rank(0), size(1) {}
+    UFNode(size_t index) : rank(0), size(1), head(index) {}
     ~UFNode() {}
     
     size_t rank;

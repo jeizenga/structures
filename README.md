@@ -1,5 +1,5 @@
 # structures
-A collection of c++ data structures I've coded up for various projects. All are beyond the scope of the STL.
+A collection of c++ data structures I've coded up for various projects. This is intended as a complement for the STL, not a replacement. All of the included structures are a bit too exotic/niche to have made it into the STL.
 
 Contents currently include:
 - Suffix tree

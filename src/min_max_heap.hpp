@@ -8,6 +8,7 @@
 #define min_max_heap_hpp
 
 #include <vector>
+#include <cstdint>
 
 using namespace std;
 
