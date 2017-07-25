@@ -47,10 +47,10 @@ public:
     void emplace(Args&&... args);
     
     /// Returns the maximum value of the heap in constant time
-    T max();
+    const T& max();
     
     /// Returns the minimum value of the heap in constant time
-    T min();
+    const T& min();
     
     /// Remove the maximum element of the heap in logarithmic time
     void pop_max();
@@ -204,13 +204,13 @@ void MinMaxHeap<T>::restore_heap_above(size_t i, int level) {
 }
 
 template <typename T>
-T MinMaxHeap<T>::min() {
+const T& MinMaxHeap<T>::min() {
     assert(!values.empty());
     return values[0];
 }
 
 template <typename T>
-T MinMaxHeap<T>::max() {
+const T& MinMaxHeap<T>::max() {
     assert(!values.empty());
     if (values.size() == 1) {
         return values[0];
