@@ -42,6 +42,10 @@ public:
     /// Add a value to the heap in logarithmic time
     void push(const T& value);
     
+    /// Construct a value on the heap in place in logarithmic time
+    template<typename... Args>
+    void emplace(Args&&... args);
+    
     /// Returns the maximum value of the heap in constant time
     T max();
     
@@ -62,6 +66,7 @@ public:
     
 private:
     
+    void post_add();
     void restore_heap_below(size_t i, int level);
     void restore_heap_above(size_t i, int level);
     inline static bool cmp(const T& v1, const T& v2, int level) {
@@ -112,6 +117,7 @@ MinMaxHeap<T>::MinMaxHeap(Iter begin, Iter end) {
     size_t internal_level_end = next_level_begin / 2 - 1;
     size_t internal_level_begin = next_level_begin / 4 - 1;
     
+    // set up the heap invariant from the deepest layer up to the root
     while (level >= 0) {
         for (size_t i = internal_level_begin; i < internal_level_end; i++) {
             restore_heap_below(i, level);
@@ -219,16 +225,28 @@ T MinMaxHeap<T>::max() {
 
 template <typename T>
 void MinMaxHeap<T>::push(const T& value) {
-    // add the vallue to the back of the array
-    int64_t i = values.size();
     values.push_back(value);
-    if (i == 0) {
+    post_add();
+}
+
+template <typename T>
+template <typename... Args>
+void MinMaxHeap<T>::emplace(Args&&... args) {
+    values.emplace_back(std::forward<Args>(args)...);
+    post_add();
+}
+
+template <typename T>
+void MinMaxHeap<T>::post_add() {
+    if (values.size() == 1) {
         // no parents to restore invariants in
         return;
     }
+    
+    int64_t i = values.size() - 1;
     size_t parent = (i + 1) / 2 - 1;
     
-    // depth of the current layer of internal nodes
+    // depth of the current layer of leaves
     int level = -1;
     // size at which we would begin filling the next level of the tree
     size_t next_level_begin = 1;

@@ -812,7 +812,7 @@ void test_min_max_heap() {
         for (int i = 0; i < max_size; i++) {
             int next = distr(gen);
             vals.push_back(next);
-            fresh_heap.push(next);
+            fresh_heap.emplace(next);
             if (i % check_frequency == 0) {
                 check_heap_invariants(fresh_heap, vals);
             }
