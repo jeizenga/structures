@@ -40,33 +40,33 @@ public:
     MinMaxHeap();
     
     /// Add a value to the heap in logarithmic time
-    void push(const T& value);
+    inline void push(const T& value);
     
     /// Construct a value on the heap in place in logarithmic time
     template<typename... Args>
-    void emplace(Args&&... args);
+    inline void emplace(Args&&... args);
     
     /// Returns the maximum value of the heap in constant time
-    const T& max();
+    inline const T& max();
     
     /// Returns the minimum value of the heap in constant time
-    const T& min();
+    inline const T& min();
     
     /// Remove the maximum element of the heap in logarithmic time
-    void pop_max();
+    inline void pop_max();
     
     /// Remove the minimum element of the heap in logarithmic time
-    void pop_min();
+    inline void pop_min();
     
     /// Returns true if the heap contains no values, else false
-    bool empty();
+    inline bool empty();
     
     /// Returns the number of values in the heap
-    size_t size();
+    inline size_t size();
     
 private:
     
-    void post_add();
+    inline void post_add();
     void restore_heap_below(size_t i, int level);
     void restore_heap_above(size_t i, int level);
     inline static bool cmp(const T& v1, const T& v2, int level) {
@@ -204,13 +204,13 @@ void MinMaxHeap<T>::restore_heap_above(size_t i, int level) {
 }
 
 template <typename T>
-const T& MinMaxHeap<T>::min() {
+inline const T& MinMaxHeap<T>::min() {
     assert(!values.empty());
     return values[0];
 }
 
 template <typename T>
-const T& MinMaxHeap<T>::max() {
+inline const T& MinMaxHeap<T>::max() {
     assert(!values.empty());
     if (values.size() == 1) {
         return values[0];
@@ -224,20 +224,20 @@ const T& MinMaxHeap<T>::max() {
 }
 
 template <typename T>
-void MinMaxHeap<T>::push(const T& value) {
+inline void MinMaxHeap<T>::push(const T& value) {
     values.push_back(value);
     post_add();
 }
 
 template <typename T>
 template <typename... Args>
-void MinMaxHeap<T>::emplace(Args&&... args) {
+inline void MinMaxHeap<T>::emplace(Args&&... args) {
     values.emplace_back(std::forward<Args>(args)...);
     post_add();
 }
 
 template <typename T>
-void MinMaxHeap<T>::post_add() {
+inline void MinMaxHeap<T>::post_add() {
     if (values.size() == 1) {
         // no parents to restore invariants in
         return;
@@ -266,7 +266,7 @@ void MinMaxHeap<T>::post_add() {
 }
 
 template <typename T>
-void MinMaxHeap<T>::pop_min() {
+inline void MinMaxHeap<T>::pop_min() {
     assert(!values.empty());
     // move the back value into the  minimum value's position and then
     // restore the invariant
@@ -276,7 +276,7 @@ void MinMaxHeap<T>::pop_min() {
 }
 
 template <typename T>
-void MinMaxHeap<T>::pop_max() {
+inline void MinMaxHeap<T>::pop_max() {
     assert(!values.empty());
     if (values.size() <= 2) {
         // the max is either the only element or the only element in
@@ -295,12 +295,12 @@ void MinMaxHeap<T>::pop_max() {
 }
 
 template <typename T>
-size_t MinMaxHeap<T>::size() {
+inline size_t MinMaxHeap<T>::size() {
     return values.size();
 }
 
 template <typename T>
-bool MinMaxHeap<T>::empty() {
+inline bool MinMaxHeap<T>::empty() {
     return values.empty();
 }
 
