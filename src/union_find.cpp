@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "union_find.hpp"
+#include "structures/union_find.hpp"
 
 struct UnionFind::UFNode {
     UFNode(size_t index) : rank(0), size(1), head(index) {}

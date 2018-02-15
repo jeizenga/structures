@@ -22,8 +22,8 @@
 //
 
 
-#ifndef suffix_tree_hpp
-#define suffix_tree_hpp
+#ifndef structures_suffix_tree_hpp
+#define structures_suffix_tree_hpp
 
 #include <unordered_map>
 #include <list>
@@ -116,4 +116,4 @@ inline char SuffixTree::get_char(size_t i) {
 
 
 
-#endif /* suffix_tree_hpp */
+#endif /* structures_suffix_tree_hpp */

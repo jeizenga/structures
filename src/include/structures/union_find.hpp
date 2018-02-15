@@ -21,8 +21,8 @@
 // Contains an implementation of a custom union-find with some additional capabilities
 //
 
-#ifndef union_find_hpp
-#define union_find_hpp
+#ifndef structures_union_find_hpp
+#define structures_union_find_hpp
 
 #include <vector>
 #include <unordered_set>
@@ -69,4 +69,4 @@ private:
     vector<UFNode> uf_nodes;
 };
 
-#endif /* union_find_hpp */
+#endif /* structures_union_find_hpp */

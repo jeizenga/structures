@@ -21,8 +21,8 @@
 // Contains a template implementation of a min-max heap
 //
 
-#ifndef min_max_heap_hpp
-#define min_max_heap_hpp
+#ifndef structures_min_max_heap_hpp
+#define structures_min_max_heap_hpp
 
 #include <vector>
 #include <cstdint>
@@ -312,4 +312,4 @@ inline bool MinMaxHeap<T>::empty() {
     return values.empty();
 }
 
-#endif /* min_max_heap_hpp */
+#endif /* structures_min_max_heap_hpp */
