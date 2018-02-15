@@ -15,70 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
-//  union_find.hpp
-//
-// Contains an implementation of a custom union-find with some additional capabilities
-//
-
-#ifndef union_find_hpp
-#define union_find_hpp
-
-#include <vector>
-#include <unordered_set>
-#include <cstdint>
-#include <algorithm>
-
-using namespace std;
-
-/**
- * A custom Union-Find data structure that supports merging a set of indices in
- * disjoint sets in amortized nearly linear time. This implementation also supports
- * querying the size of the group containing an index in constant time and querying
- * the members of the group containing an index in linear time in the size of the group.
- */
-class UnionFind {
-public:
-    /// Construct UnionFind for this many indices
-    UnionFind(size_t size);
-    
-    /// Destructor
-    ~UnionFind();
-    
-    /// Returns the number of indices in the UnionFind
-    size_t size();
-    
-    /// Returns the group ID that index i belongs to (can change after calling union)
-    size_t find_group(size_t i);
-    
-    /// Merges the group containing index i with the group containing index j
-    void union_groups(size_t i, size_t j);
-    
-    /// Returns the size of the group containing index i
-    size_t group_size(size_t i);
-    
-    /// Returns a vector of the indices in the same group as index i
-    vector<size_t> group(size_t i);
-    
-    /// Returns all of the groups, each in a separate vector
-    vector<vector<size_t>> all_groups();
-    
-private:
-    
-    struct UFNode;
-    vector<UFNode> uf_nodes;
-};
-
-
-
-
-
-
-
-
-
-
-
+#include "structures/union_find.hpp"
 
 struct UnionFind::UFNode {
     UFNode(size_t index) : rank(0), size(1), head(index) {}
@@ -184,7 +121,3 @@ vector<vector<size_t>> UnionFind::all_groups() {
     to_return.resize(new_end - to_return.begin());
     return to_return;
 }
-
-
-
-#endif /* union_find_hpp */

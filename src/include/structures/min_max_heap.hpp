@@ -21,8 +21,8 @@
 // Contains a template implementation of a min-max heap
 //
 
-#ifndef min_max_heap_hpp
-#define min_max_heap_hpp
+#ifndef structures_min_max_heap_hpp
+#define structures_min_max_heap_hpp
 
 #include <vector>
 #include <cstdint>
@@ -133,7 +133,7 @@ MinMaxHeap<T>::MinMaxHeap(Iter begin, Iter end) {
 }
 
 template <typename T>
-inline static bool MinMaxHeap<T>::cmp(const T& v1, const T& v2, int level) {
+inline bool MinMaxHeap<T>::cmp(const T& v1, const T& v2, int level) {
     return (level % 2 == 0) != (v1 > v2);
 }
 
@@ -312,4 +312,4 @@ inline bool MinMaxHeap<T>::empty() {
     return values.empty();
 }
 
-#endif /* min_max_heap_hpp */
+#endif /* structures_min_max_heap_hpp */

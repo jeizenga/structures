@@ -29,9 +29,9 @@
 #include <random>
 #include <cassert>
 
-#include "suffix_tree.hpp"
-#include "union_find.hpp"
-#include "min_max_heap.hpp"
+#include "structures/suffix_tree.hpp"
+#include "structures/union_find.hpp"
+#include "structures/min_max_heap.hpp"
 
 using namespace std;
 
