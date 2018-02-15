@@ -1,6 +1,7 @@
 CXX = g++
 CPPFLAGS = -std=c++11 -m64
-OBJ = $(OBJDIR)/min_max_heap.o $(OBJDIR)/union_find.o $(OBJDIR)/suffix_tree.o $(OBJDIR)/tests.o
+OBJ = $(OBJDIR)/tests.o $(OBJDIR)/union_find.o $(OBJDIR)/suffix_tree.o
+HEADERS = $(SRCDIR)/suffix_tree.hpp $(SRCDIR)/union_find.hpp $(SRCDIR)/min_max_heap.hpp
 OBJDIR = obj
 SRCDIR = src
 BINDIR = bin
@@ -30,16 +31,15 @@ clean:
 $(BINDIR)/test: $(OBJ)
 	$(CXX) $(CPPFLAGS) -o $(BINDIR)/test $(OBJ)
 
-$(OBJDIR)/suffix_tree.o: $(SRCDIR)/suffix_tree.hpp
-	$(CXX) $(CPPFLAGS) -c $(SRCDIR)/suffix_tree.hpp -o $(OBJDIR)/suffix_tree.o 
+$(OBJDIR)/suffix_tree.o: $(SRCDIR)/suffix_tree.cpp $(SRCDIR)/suffix_tree.hpp
+	$(CXX) $(CPPFLAGS) -c $(SRCDIR)/suffix_tree.cpp -o $(OBJDIR)/suffix_tree.o 
 
-$(OBJDIR)/union_find.o: $(SRCDIR)/union_find.hpp
-	$(CXX) $(CPPFLAGS) -c $(SRCDIR)/union_find.hpp -o $(OBJDIR)/union_find.o 
+$(OBJDIR)/union_find.o: $(SRCDIR)/union_find.cpp $(SRCDIR)/union_find.hpp
+	$(CXX) $(CPPFLAGS) -c $(SRCDIR)/union_find.cpp -o $(OBJDIR)/union_find.o 
 
-$(OBJDIR)/min_max_heap.o: $(SRCDIR)/min_max_heap.hpp
-	$(CXX) $(CPPFLAGS) -c $(SRCDIR)/min_max_heap.hpp -o $(OBJDIR)/min_max_heap.o
+# MinMaxHeap is header-only
 
-$(OBJDIR)/tests.o: $(SRCDIR)/tests.cpp
+$(OBJDIR)/tests.o: $(SRCDIR)/tests.cpp $(HEADERS)
 	$(CXX) $(CPPFLAGS) -c $(SRCDIR)/tests.cpp -o $(OBJDIR)/tests.o 
 	
 test: $(BINDIR)/test

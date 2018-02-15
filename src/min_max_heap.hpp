@@ -133,7 +133,7 @@ MinMaxHeap<T>::MinMaxHeap(Iter begin, Iter end) {
 }
 
 template <typename T>
-inline static bool MinMaxHeap<T>::cmp(const T& v1, const T& v2, int level) {
+inline bool MinMaxHeap<T>::cmp(const T& v1, const T& v2, int level) {
     return (level % 2 == 0) != (v1 > v2);
 }
 
