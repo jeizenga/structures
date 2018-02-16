@@ -84,11 +84,27 @@ public:
     /// Prepend an item and return the list with the item prepended
     ImmutableList<T> push_front(const T& item) const;
     
+    /// Get the rest of the list with the first item removed.
+    /// The first item must exist.
+    ImmutableList<T> pop_front() const;
+    
     /// Get the first item, which must exist
     const T& front() const;
     
     /// Decide if the list is empty
     bool empty() const;
+    
+    /// Compare two lists for less-than (if T supports it)
+    bool operator<(const ImmutableList<T>& other) const;
+    
+    /// Compare two lists for greater-than (if T supports it)
+    bool operator>(const ImmutableList<T>& other) const;
+    
+    /// Compare two lists for equality (if T supports it)
+    bool operator==(const ImmutableList<T>& other) const;
+    
+    /// Compare two lists for inequality (if T supports it)
+    bool operator!=(const ImmutableList<T>& other) const;
     
 private:
     
@@ -233,6 +249,13 @@ auto ImmutableList<T>::push_front(const T& item) const -> ImmutableList<T> {
 }
 
 template<typename T>
+auto ImmutableList<T>::pop_front() const -> ImmutableList<T> {
+    ImmutableList<T> popped;
+    popped.head = head->next;
+    return popped;
+}
+
+template<typename T>
 auto ImmutableList<T>::front() const -> const T& {
     return *(head->data);
 }
@@ -240,6 +263,89 @@ auto ImmutableList<T>::front() const -> const T& {
 template<typename T>
 auto ImmutableList<T>::empty() const -> bool {
     return head.get() == nullptr;
+}
+
+// TODO: replace these recursive implementations which might not get tail call optimized!
+
+template<typename T>
+auto ImmutableList<T>::operator<(const ImmutableList<T>& other) const -> bool {
+    if (empty()) {
+        // Empty is < filled
+        return !other.empty();
+    }
+    if (other.empty()) {
+        return false;
+    }
+    
+    if (front() < other.front()) {
+        // We're smaller
+        return true;
+    } else if (other.front() < front()) {
+        // They're smaller
+        return false;
+    } else {
+        // Equal fronts means compare the rests.
+        return pop_front() < other.pop_front();
+    }
+}
+
+template<typename T>
+auto ImmutableList<T>::operator>(const ImmutableList<T>& other) const -> bool {
+    if (other.empty()) {
+        // Filled is > empty
+        return !empty();
+    }
+    if (empty()) {
+        return false;
+    }
+    
+    if (other.front() > front()) {
+        // They're larger
+        return false;
+    } else if (front() > other.front()) {
+        // We're larger
+        return true;
+    } else {
+        // Equal fronts means compare the rests.
+        return pop_front() > other.pop_front();
+    }
+}
+
+template<typename T>
+auto ImmutableList<T>::operator==(const ImmutableList<T>& other) const -> bool {
+    if (empty()) {
+        // Empties are equal
+        return other.empty();
+    }
+    if (other.empty()) {
+        return false;
+    }
+    
+    if (front() == other.front()) {
+        // Keep looking
+        return pop_front() == other.pop_front();
+    } else {
+        return false;
+    }
+}
+
+template<typename T>
+auto ImmutableList<T>::operator!=(const ImmutableList<T>& other) const -> bool {
+    if (empty()) {
+        // Empties are equal
+        return !other.empty();
+    }
+    if (other.empty()) {
+        return true;
+    }
+    
+    if (front() != other.front()) {
+        // We found a difference
+        return true;
+    } else {
+        // Keep looking
+        return pop_front() != other.pop_front();
+    }
 }
 
 template<typename T>
