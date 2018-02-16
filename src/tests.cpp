@@ -851,7 +851,9 @@ void test_immutable_list() {
         assert(list.empty());
         
         list = ImmutableList<int>(1);
+        assert(list.front() == 1);
         list = ImmutableList<int>(2, list);
+        assert(list.front() == 2);
         auto list2 = list.push_front(4);
         list = ImmutableList<int>(3, list);
         list2 = ImmutableList<int>(8, list2);
