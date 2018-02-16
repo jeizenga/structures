@@ -84,6 +84,9 @@ public:
     /// Prepend an item and return the list with the item prepended
     ImmutableList<T> push_front(const T& item) const;
     
+    /// Get the first item, which must exist
+    const T& front() const;
+    
     /// Decide if the list is empty
     bool empty() const;
     
@@ -227,6 +230,11 @@ ImmutableList<T>::ImmutableList(const T& item, const ImmutableList<T>& rest) : h
 template<typename T>
 auto ImmutableList<T>::push_front(const T& item) const -> ImmutableList<T> {
     return ImmutableList<T>(item, *this);
+}
+
+template<typename T>
+auto ImmutableList<T>::front() const -> const T& {
+    return *(head->data);
 }
 
 template<typename T>
