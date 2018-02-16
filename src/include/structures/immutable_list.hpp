@@ -81,6 +81,12 @@ public:
     /// Make an ImmutableList by prepending a value to an existing one, or onto an empty list.
     ImmutableList(const T& item, const ImmutableList<T>& rest = ImmutableList());
     
+    /// Prepend an item and return the list with the item prepended
+    ImmutableList<T> push_front(const T& item) const;
+    
+    /// Decide if the list is empty
+    bool empty() const;
+    
 private:
     
     /// We define a Node class; an ImmutableList is just a handle to a shared_ptr-owned head Node.
@@ -216,6 +222,16 @@ void QueueDeleter<T>::queue(T* to_delete) {
 template<typename T>
 ImmutableList<T>::ImmutableList(const T& item, const ImmutableList<T>& rest) : head(create_node(item, rest.head)) {
     // Nothing to do!
+}
+
+template<typename T>
+auto ImmutableList<T>::push_front(const T& item) const -> ImmutableList<T> {
+    return ImmutableList<T>(item, *this);
+}
+
+template<typename T>
+auto ImmutableList<T>::empty() const -> bool {
+    return head.get() == nullptr;
 }
 
 template<typename T>

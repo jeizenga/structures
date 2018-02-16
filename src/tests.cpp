@@ -848,11 +848,15 @@ void test_immutable_list() {
     {
         ImmutableList<int> list;
         
+        assert(list.empty());
+        
         list = ImmutableList<int>(1);
         list = ImmutableList<int>(2, list);
-        auto list2 = ImmutableList<int>(4, list);
+        auto list2 = list.push_front(4);
         list = ImmutableList<int>(3, list);
         list2 = ImmutableList<int>(8, list2);
+        
+        assert(!list.empty());
         
         vector<int> got;
         for (auto& i : list) {
