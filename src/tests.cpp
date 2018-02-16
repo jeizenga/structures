@@ -860,6 +860,14 @@ void test_immutable_list() {
         
         assert(!list.empty());
         
+        auto list3 = list2.pop_front();
+        assert(list3.front() == 4);
+        
+        assert(list3 < list2);
+        assert(list2 > ImmutableList<int>());
+        assert(list2 == list2);
+        assert(list2 != list3);
+        
         vector<int> got;
         for (auto& i : list) {
             got.push_back(i);
