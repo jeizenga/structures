@@ -7,9 +7,9 @@ LIBDIR = lib
 LIBOBJ = $(OBJDIR)/union_find.o $(OBJDIR)/suffix_tree.o
 LIB = $(LIBDIR)/libstructures.a
 TESTOBJ =$(OBJDIR)/tests.o
-HEADERS = $(INCDIR)/suffix_tree.hpp $(INCDIR)/union_find.hpp $(INCDIR)/min_max_heap.hpp
+HEADERS = $(INCDIR)/suffix_tree.hpp $(INCDIR)/union_find.hpp $(INCDIR)/min_max_heap.hpp $(INCDIR)/immutable_list.hpp
 CXX = g++
-CPPFLAGS = -std=c++11 -m64 -I$(INCSEARCHDIR)
+CPPFLAGS = -std=c++11 -m64 -g -I$(INCSEARCHDIR)
 
 
 all:

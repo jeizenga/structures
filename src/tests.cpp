@@ -32,6 +32,7 @@
 #include "structures/suffix_tree.hpp"
 #include "structures/union_find.hpp"
 #include "structures/min_max_heap.hpp"
+#include "structures/immutable_list.hpp"
 
 using namespace std;
 
@@ -843,8 +844,44 @@ void test_min_max_heap() {
     cerr << "All MinMaxHeap tests successful!" << endl;
 }
 
-int main(void) {
+void test_immutable_list() {
+    {
+        ImmutableList<int> list;
+        
+        list = ImmutableList<int>(1);
+        list = ImmutableList<int>(2, list);
+        auto list2 = ImmutableList<int>(4, list);
+        list = ImmutableList<int>(3, list);
+        list2 = ImmutableList<int>(8, list2);
+        
+        vector<int> got;
+        for (auto& i : list) {
+            got.push_back(i);
+        }
+        
+        assert(got.size() == 3);
+        assert(got[0] == 3);
+        assert(got[1] == 2);
+        assert(got[2] == 1);
+        
+        vector<int> got2;
+        for (auto& i : list2) {
+            got2.push_back(i);
+        }
+        
+        assert(got2.size() == 4);
+        assert(got2[0] == 8);
+        assert(got2[1] == 4);
+        assert(got2[2] == 2);
+        assert(got2[3] == 1);
+    }
     
+    cerr << "All ImmutableList tests successful!" << endl;
+}
+
+int main(void) {
+
+    test_immutable_list();
     test_min_max_heap();
     test_union_find_with_curated_examples();
     test_union_find_with_random_examples();
