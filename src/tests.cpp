@@ -3,7 +3,7 @@
 // distributed with this work for additional information
 // regarding copyright ownership.  The ASF licenses this file
 // to you under the Apache License, Version 2.0 (the
-//                                               "License"); you may not use this file except in compliance
+// "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
 //
 // http://www.apache.org/licenses/LICENSE-2.0
@@ -33,6 +33,7 @@
 #include "structures/union_find.hpp"
 #include "structures/min_max_heap.hpp"
 #include "structures/immutable_list.hpp"
+#include "structures/stable_double.hpp"
 
 using namespace std;
 
@@ -893,8 +894,126 @@ void test_immutable_list() {
     cerr << "All ImmutableList tests successful!" << endl;
 }
 
+void test_stable_doubles() {
+    double tol = 0.001;
+    vector<double> vals{1000000.0, 100000.0, 10000.0, 1000.0, 100.0, 10.0, 1.0, 0.1, 0.01, 0.0, -0.01, -0.1 -1.0, -10.0, -100.0, -1000.0, -10000.0, -100000.0, -1000000.0};
+    
+    // converting with doubles
+    for (double x : vals) {
+        assert(abs(StableDouble(x).to_double() - x) < tol);
+    }
+    
+    // unary -
+    for (double x : vals) {
+        assert(abs((-StableDouble(x)).to_double() + x) < tol);
+    }
+    
+    // inverse
+    for (double x : vals) {
+        if (x == 0.0) {
+            continue;
+        }
+        assert(abs(StableDouble(x).inverse().to_double() - 1.0 / x) < tol);
+    }
+    
+    // +
+    for (double x : vals) {
+        for (double y : vals) {
+            double stable = (StableDouble(x) + StableDouble(y)).to_double();
+            double mixed = (StableDouble(x) + y).to_double();
+            double normal = x + y;
+            assert(abs(stable - normal) < tol);
+            assert(abs(mixed - normal) < tol);
+        }
+    }
+    
+    // -
+    for (double x : vals) {
+        for (double y : vals) {
+            double stable = (StableDouble(x) - StableDouble(y)).to_double();
+            double mixed = (StableDouble(x) - y).to_double();
+            double normal = x - y;
+            assert(abs(stable - normal) < tol);
+            assert(abs(mixed - normal) < tol);
+        }
+    }
+    
+    // *
+    for (double x : vals) {
+        for (double y : vals) {
+            double stable = (StableDouble(x) * StableDouble(y)).to_double();
+            double mixed = (StableDouble(x) * y).to_double();
+            double normal = x * y;
+            assert(abs(stable - normal) < tol);
+            assert(abs(mixed - normal) < tol);
+        }
+    }
+    
+    // /
+    for (double x : vals) {
+        for (double y : vals) {
+            if (y == 0.0) {
+                continue;
+            }
+            double stable = (StableDouble(x) / StableDouble(y)).to_double();
+            double mixed = (StableDouble(x) / y).to_double();
+            double normal = x / y;
+            assert(abs(stable - normal) < tol);
+            assert(abs(mixed - normal) < tol);
+        }
+    }
+    
+    // <
+    for (double x : vals) {
+        for (double y : vals) {
+            bool stable = StableDouble(x) < StableDouble(y);
+            bool mixed = StableDouble(x) < y;
+            bool normal = x < y;
+            assert(stable == normal);
+            assert(mixed == normal);
+        }
+    }
+    
+    // <=
+    for (double x : vals) {
+        for (double y : vals) {
+            bool stable = StableDouble(x) <= StableDouble(y);
+            bool mixed = StableDouble(x) <= y;
+            bool normal = x <= y;
+            assert(stable == normal);
+            assert(mixed == normal);
+        }
+    }
+    
+    // >=
+    for (double x : vals) {
+        for (double y : vals) {
+            bool stable = StableDouble(x) >= StableDouble(y);
+            bool mixed = StableDouble(x) >= y;
+            bool normal = x >= y;
+            assert(stable == normal);
+            assert(mixed == normal);
+        }
+    }
+    
+    // >
+    for (double x : vals) {
+        for (double y : vals) {
+            bool stable = StableDouble(x) > StableDouble(y);
+            bool mixed = StableDouble(x) > y;
+            bool normal = x > y;
+            assert(stable == normal);
+            assert(mixed == normal);
+        }
+    }
+    
+    cerr << "All StableDouble tests successful!" << endl;
+
+}
+
 int main(void) {
 
+    test_stable_doubles();
     test_immutable_list();
     test_min_max_heap();
     test_union_find_with_curated_examples();
