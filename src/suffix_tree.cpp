@@ -18,6 +18,10 @@
 
 #include "structures/suffix_tree.hpp"
 
+namespace structures {
+
+using namespace std;
+
 // Ukkonen's construction algorithm, similar to implementation in
 // http://stackoverflow.com/questions/9452701/ukkonens-suffix-tree-algorithm-in-plain-english
 SuffixTree::SuffixTree(string::const_iterator begin, string::const_iterator end) :
@@ -430,4 +434,6 @@ vector<size_t> SuffixTree::substring_locations(string::const_iterator begin, str
 
 SuffixTree::STNode::STNode(int64_t first, int64_t last) : first(first), last(last) {
     // nothing to do
+}
+
 }

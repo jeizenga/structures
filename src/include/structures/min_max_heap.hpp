@@ -27,6 +27,8 @@
 #include <vector>
 #include <cstdint>
 
+namespace structures {
+
 using namespace std;
 
 
@@ -310,6 +312,8 @@ inline size_t MinMaxHeap<T>::size() {
 template <typename T>
 inline bool MinMaxHeap<T>::empty() {
     return values.empty();
+}
+
 }
 
 #endif /* structures_min_max_heap_hpp */

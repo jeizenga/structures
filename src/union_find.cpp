@@ -17,6 +17,10 @@
 
 #include "structures/union_find.hpp"
 
+namespace structures {
+
+using namespace std;
+
 struct UnionFind::UFNode {
     UFNode(size_t index) : rank(0), size(1), head(index) {}
     ~UFNode() {}
@@ -120,4 +124,6 @@ vector<vector<size_t>> UnionFind::all_groups() {
                                   [](const vector<size_t>& grp) { return grp.empty(); });
     to_return.resize(new_end - to_return.begin());
     return to_return;
+}
+
 }

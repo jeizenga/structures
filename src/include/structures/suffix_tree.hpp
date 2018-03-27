@@ -30,6 +30,8 @@
 #include <vector>
 #include <cstdint>
 
+namespace structures {
+
 using namespace std;
 
 /**
@@ -112,7 +114,7 @@ inline char SuffixTree::get_char(size_t i) {
 }
 
 
-
+}
 
 
 

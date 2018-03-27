@@ -25,11 +25,13 @@
 #ifndef structures_stable_double_hpp
 #define structures_stable_double_hpp
 
-using namespace std;
-
 #include <ostream>
 #include <cmath>
 #include <limits>
+
+namespace structures {
+
+using namespace std;
 
 /*
  * A class that supports basic floating point arithmetic operations on internal values stored
@@ -259,6 +261,8 @@ inline bool StableDouble::operator<=(const double other) const {
 
 inline bool StableDouble::operator>=(const double other) const {
     return *this >= StableDouble(other);
+}
+
 }
 
 #endif /* structures_stable_double_hpp */
