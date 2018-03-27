@@ -4,10 +4,10 @@ INCSEARCHDIR = $(SRCDIR)/include
 INCDIR = $(INCSEARCHDIR)/structures
 BINDIR = bin
 LIBDIR = lib
-LIBOBJ = $(OBJDIR)/union_find.o $(OBJDIR)/suffix_tree.o
+LIBOBJ = $(OBJDIR)/union_find.o $(OBJDIR)/suffix_tree.o $(OBJDIR)/stable_double.o 
 LIB = $(LIBDIR)/libstructures.a
 TESTOBJ =$(OBJDIR)/tests.o
-HEADERS = $(INCDIR)/suffix_tree.hpp $(INCDIR)/union_find.hpp $(INCDIR)/min_max_heap.hpp $(INCDIR)/immutable_list.hpp
+HEADERS = $(INCDIR)/suffix_tree.hpp $(INCDIR)/union_find.hpp $(INCDIR)/min_max_heap.hpp $(INCDIR)/immutable_list.hpp $(INCDIR)/stable_double.hpp 
 CXX = g++
 CPPFLAGS = -std=c++11 -m64 -g -I$(INCSEARCHDIR)
 
@@ -27,6 +27,9 @@ $(OBJDIR)/suffix_tree.o: $(SRCDIR)/suffix_tree.cpp $(INCDIR)/suffix_tree.hpp
 
 $(OBJDIR)/union_find.o: $(SRCDIR)/union_find.cpp $(INCDIR)/union_find.hpp
 	$(CXX) $(CPPFLAGS) -c $(SRCDIR)/union_find.cpp -o $(OBJDIR)/union_find.o 
+
+$(OBJDIR)/stable_double.o: $(SRCDIR)/stable_double.cpp $(INCDIR)/stable_double.hpp
+	$(CXX) $(CPPFLAGS) -c $(SRCDIR)/stable_double.cpp -o $(OBJDIR)/stable_double.o 
 
 # MinMaxHeap is header-only
 

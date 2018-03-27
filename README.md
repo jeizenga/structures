@@ -5,3 +5,5 @@ Contents currently include:
 - Suffix tree
 - Union find variant with some added functionality
 - Min-max heap
+- An immutable linked list
+- An overflow- and underflow-resistant alternative to floating point numbers

@@ -3,7 +3,7 @@
 // distributed with this work for additional information
 // regarding copyright ownership.  The ASF licenses this file
 // to you under the Apache License, Version 2.0 (the
-//                                               "License"); you may not use this file except in compliance
+// "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
 //
 // http://www.apache.org/licenses/LICENSE-2.0
@@ -17,6 +17,10 @@
 
 
 #include "structures/suffix_tree.hpp"
+
+namespace structures {
+
+using namespace std;
 
 // Ukkonen's construction algorithm, similar to implementation in
 // http://stackoverflow.com/questions/9452701/ukkonens-suffix-tree-algorithm-in-plain-english
@@ -430,4 +434,6 @@ vector<size_t> SuffixTree::substring_locations(string::const_iterator begin, str
 
 SuffixTree::STNode::STNode(int64_t first, int64_t last) : first(first), last(last) {
     // nothing to do
+}
+
 }

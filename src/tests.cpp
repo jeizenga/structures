@@ -3,7 +3,7 @@
 // distributed with this work for additional information
 // regarding copyright ownership.  The ASF licenses this file
 // to you under the Apache License, Version 2.0 (the
-//                                               "License"); you may not use this file except in compliance
+// "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
 //
 // http://www.apache.org/licenses/LICENSE-2.0
@@ -33,8 +33,11 @@
 #include "structures/union_find.hpp"
 #include "structures/min_max_heap.hpp"
 #include "structures/immutable_list.hpp"
+#include "structures/stable_double.hpp"
+#include "structures/updateable_priority_queue.hpp"
 
 using namespace std;
+using namespace structures;
 
 size_t longest_overlap(string& str1, string& str2) {
     size_t max_possible = min(str1.size(), str2.size());
@@ -893,8 +896,267 @@ void test_immutable_list() {
     cerr << "All ImmutableList tests successful!" << endl;
 }
 
+void test_stable_doubles() {
+    double tol = 0.001;
+    vector<double> vals{1000000.0, 100000.0, 10000.0, 1000.0, 100.0, 10.0, 1.0, 0.1, 0.01, 0.0, -0.01, -0.1 -1.0, -10.0, -100.0, -1000.0, -10000.0, -100000.0, -1000000.0};
+    
+    // converting with doubles
+    for (double x : vals) {
+        assert(abs(StableDouble(x).to_double() - x) < tol);
+    }
+    
+    // unary -
+    for (double x : vals) {
+        assert(abs((-StableDouble(x)).to_double() + x) < tol);
+    }
+    
+    // inverse
+    for (double x : vals) {
+        if (x == 0.0) {
+            continue;
+        }
+        assert(abs(StableDouble(x).inverse().to_double() - 1.0 / x) < tol);
+    }
+    
+    // +
+    for (double x : vals) {
+        for (double y : vals) {
+            double stable = (StableDouble(x) + StableDouble(y)).to_double();
+            double mixed = (StableDouble(x) + y).to_double();
+            double normal = x + y;
+            assert(abs(stable - normal) < tol);
+            assert(abs(mixed - normal) < tol);
+        }
+    }
+    
+    // -
+    for (double x : vals) {
+        for (double y : vals) {
+            double stable = (StableDouble(x) - StableDouble(y)).to_double();
+            double mixed = (StableDouble(x) - y).to_double();
+            double normal = x - y;
+            assert(abs(stable - normal) < tol);
+            assert(abs(mixed - normal) < tol);
+        }
+    }
+    
+    // *
+    for (double x : vals) {
+        for (double y : vals) {
+            double stable = (StableDouble(x) * StableDouble(y)).to_double();
+            double mixed = (StableDouble(x) * y).to_double();
+            double normal = x * y;
+            assert(abs(stable - normal) < tol);
+            assert(abs(mixed - normal) < tol);
+        }
+    }
+    
+    // /
+    for (double x : vals) {
+        for (double y : vals) {
+            if (y == 0.0) {
+                continue;
+            }
+            double stable = (StableDouble(x) / StableDouble(y)).to_double();
+            double mixed = (StableDouble(x) / y).to_double();
+            double normal = x / y;
+            assert(abs(stable - normal) < tol);
+            assert(abs(mixed - normal) < tol);
+        }
+    }
+    
+    // <
+    for (double x : vals) {
+        for (double y : vals) {
+            bool stable = StableDouble(x) < StableDouble(y);
+            bool mixed = StableDouble(x) < y;
+            bool normal = x < y;
+            assert(stable == normal);
+            assert(mixed == normal);
+        }
+    }
+    
+    // <=
+    for (double x : vals) {
+        for (double y : vals) {
+            bool stable = StableDouble(x) <= StableDouble(y);
+            bool mixed = StableDouble(x) <= y;
+            bool normal = x <= y;
+            assert(stable == normal);
+            assert(mixed == normal);
+        }
+    }
+    
+    // >=
+    for (double x : vals) {
+        for (double y : vals) {
+            bool stable = StableDouble(x) >= StableDouble(y);
+            bool mixed = StableDouble(x) >= y;
+            bool normal = x >= y;
+            assert(stable == normal);
+            assert(mixed == normal);
+        }
+    }
+    
+    // >
+    for (double x : vals) {
+        for (double y : vals) {
+            bool stable = StableDouble(x) > StableDouble(y);
+            bool mixed = StableDouble(x) > y;
+            bool normal = x > y;
+            assert(stable == normal);
+            assert(mixed == normal);
+        }
+    }
+    
+    cerr << "All StableDouble tests successful!" << endl;
+}
+
+void test_updateable_priority_queue() {
+    
+    {
+        // Test it with just ints
+        UpdateablePriorityQueue<int, int, vector<int>, greater<int>> queue;
+        
+        assert(queue.empty());
+        
+        queue.emplace(56);
+        
+        assert(!queue.empty());
+        assert(queue.top() == 56);
+        
+        queue.push(56);
+        queue.emplace(56);
+        
+        assert(queue.top() == 56);
+        queue.pop();
+        
+        // The extra copies of the same element should be eliminated
+        assert(queue.empty());
+        
+        // And we shouldn't be able to see the same element again.
+        // TODO: should we test this behavior? Or is this something we want undefined so we can change it more easily later?
+        queue.push(56);
+        assert(queue.empty());
+        queue.emplace(56);
+        assert(queue.empty());
+        
+        // Clearing should let it back in
+        queue.clear();
+        queue.push(56);
+        assert(!queue.empty());
+        assert(queue.top() == 56);
+        
+        
+        // Then we can do a series of adds and pops
+        queue.push(55);
+        assert(queue.top() == 55);
+        
+        queue.emplace(40);
+        assert(queue.top() == 40);
+        
+        queue.pop();
+        assert(!queue.empty());
+        assert(queue.top() == 55);
+        
+        queue.push(58);
+        assert(queue.top() == 55);
+        
+        queue.pop();
+        assert(!queue.empty());
+        assert(queue.top() == 56);
+        
+        queue.pop();
+        assert(!queue.empty());
+        assert(queue.top() == 58);
+        
+        queue.pop();
+        assert(queue.empty());
+    }
+    
+    {
+        // Test the update functionality
+        UpdateablePriorityQueue<pair<int, string>, string, vector<pair<int, string>>, greater<pair<int, string>>> queue(
+            [](const pair<int, string>& item) {
+                return item.second;
+            });
+            
+        // It starts empty
+        assert(queue.empty());
+        
+        // We can insert
+        queue.push(make_pair(10, "lions"));
+        assert(queue.top().second == "lions");
+        assert(queue.top().first == 10);
+        
+        // We can preempt
+        queue.push(make_pair(5, "tigers"));
+        assert(queue.top().second == "tigers");
+        assert(queue.top().first == 5);
+        
+        queue.emplace(make_pair(3, "bears"));
+        assert(queue.top().second == "bears");
+        assert(queue.top().first == 3);
+        
+        // We can update
+        queue.push(make_pair(2, "tigers"));
+        assert(queue.top().second == "tigers");
+        assert(queue.top().first == 2);
+        
+        queue.emplace(make_pair(1, "bears"));
+        assert(queue.top().second == "bears");
+        assert(queue.top().first == 1);
+        
+        // We can pop stuff
+        queue.pop();
+        assert(!queue.empty());
+        assert(queue.top().second == "tigers");
+        assert(queue.top().first == 2);
+        
+        queue.pop();
+        assert(!queue.empty());
+        assert(queue.top().second == "lions");
+        assert(queue.top().first == 10);
+        
+        // We can't add stuff that has been popped
+        queue.push(make_pair(0, "tigers"));
+        assert(queue.top().second == "lions");
+        assert(queue.top().first == 10);
+        
+        queue.emplace(make_pair(0, "bears"));
+        assert(queue.top().second == "lions");
+        assert(queue.top().first == 10);
+        
+        // But we can do it after clear
+        queue.clear();
+        assert(queue.empty());
+        
+        queue.push(make_pair(1, "tigers"));
+        assert(!queue.empty());
+        assert(queue.top().second == "tigers");
+        assert(queue.top().first == 1);
+        
+        queue.emplace(make_pair(0, "bears"));
+        assert(!queue.empty());
+        assert(queue.top().second == "bears");
+        assert(queue.top().first == 0);
+        
+        
+        
+        // We can clean up the queue
+        queue.pop();
+        assert(!queue.empty());
+        queue.pop();
+        assert(queue.empty());
+    }
+    
+    cerr << "All UpdateablePriorityQueue tests successful!" << endl;
+}
+
 int main(void) {
 
+    test_updateable_priority_queue();
+    test_stable_doubles();
     test_immutable_list();
     test_min_max_heap();
     test_union_find_with_curated_examples();

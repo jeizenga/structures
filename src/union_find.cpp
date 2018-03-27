@@ -3,7 +3,7 @@
 // distributed with this work for additional information
 // regarding copyright ownership.  The ASF licenses this file
 // to you under the Apache License, Version 2.0 (the
-//                                               "License"); you may not use this file except in compliance
+// "License"); you may not use this file except in compliance
 // with the License.  You may obtain a copy of the License at
 //
 // http://www.apache.org/licenses/LICENSE-2.0
@@ -16,6 +16,10 @@
 // under the License.
 
 #include "structures/union_find.hpp"
+
+namespace structures {
+
+using namespace std;
 
 struct UnionFind::UFNode {
     UFNode(size_t index) : rank(0), size(1), head(index) {}
@@ -120,4 +124,6 @@ vector<vector<size_t>> UnionFind::all_groups() {
                                   [](const vector<size_t>& grp) { return grp.empty(); });
     to_return.resize(new_end - to_return.begin());
     return to_return;
+}
+
 }
