@@ -1007,12 +1007,33 @@ void test_stable_doubles() {
         }
     }
     
+    // ==
+    for (double x : vals) {
+        for (double y : vals) {
+            bool stable = StableDouble(x) == StableDouble(y);
+            bool mixed = StableDouble(x) == y;
+            bool normal = x == y;
+            assert(stable == normal);
+            assert(mixed == normal);
+        }
+    }
+    
+    // !=
+    for (double x : vals) {
+        for (double y : vals) {
+            bool stable = StableDouble(x) != StableDouble(y);
+            bool mixed = StableDouble(x) != y;
+            bool normal = x != y;
+            assert(stable == normal);
+            assert(mixed == normal);
+        }
+    }
+    
     cerr << "All StableDouble tests successful!" << endl;
 
 }
 
 int main(void) {
-
     test_stable_doubles();
     test_immutable_list();
     test_min_max_heap();
