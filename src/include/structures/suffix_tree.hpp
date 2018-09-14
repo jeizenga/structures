@@ -29,6 +29,7 @@
 #include <list>
 #include <vector>
 #include <cstdint>
+#include <string>
 
 namespace structures {
 
