@@ -26,6 +26,7 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include <priority_queue>
 #include <random>
 #include <cassert>
 
@@ -33,6 +34,7 @@
 #include "structures/union_find.hpp"
 #include "structures/min_max_heap.hpp"
 #include "structures/immutable_list.hpp"
+#include "structures/stable_double.hpp"
 #include "structures/stable_double.hpp"
 
 using namespace std;

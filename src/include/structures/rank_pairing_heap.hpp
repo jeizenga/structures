@@ -200,14 +200,15 @@ inline void RankPairingHeap<T, PriorityType, Compare>::reprioritize(Node* node, 
     
     if (compare(node->value.second, priority)) {
         // we're giving it a higher priority than it currently has
+        
+        // we don't need to rearrange this tree because it's already the highest priority element
+        node->value.second = priority;
+        
         if (!node->parent) {
-            // we don't need to rearrange this tree because it's already the highest priority element
-            node->value.second = priority;
-            
             if (compare(top().second, priority)) {
                 // this is now the highest priority root, so we need to move it to the front
                 // TODO: how do I efficiently find this root in the list?
-                // could switch to one Node* and an unordered_set<Node*> ...
+                //       could switch to one front Node* and an unordered_set<Node*> ...
                 auto prev_iter = roots.begin();
                 auto iter = prev_iter;
                 ++iter;
@@ -282,6 +283,7 @@ inline void RankPairingHeap<T, PriorityType, Compare>::pop() {
         Node* prev_spine_node = first_root->left;
         new_roots.push_front(prev_spine_node);
         prev_spine_node->parent = nullptr;
+        
         while (prev_spine_node->right) {
 
             new_roots.push_front(prev_spine_node->right);
