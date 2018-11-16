@@ -18,6 +18,9 @@
 
 #include "structures/stable_double.hpp"
 
+namespace structures {
+
+using namespace std;
 
 StableDouble::StableDouble() : log_abs_x(numeric_limits<double>::lowest()), positive(true) {
     
@@ -44,4 +47,6 @@ StableDouble::StableDouble(double log_abs_x, bool positive) : log_abs_x(log_abs_
 
 ostream& operator<<(ostream& out, const StableDouble& val) {
     return out << (val.positive ? "exp(" : "-exp(") << val.log_abs_x << ")";
+}
+
 }

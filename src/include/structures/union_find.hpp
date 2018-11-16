@@ -29,6 +29,8 @@
 #include <cstdint>
 #include <algorithm>
 
+namespace structures {
+
 using namespace std;
 
 /**
@@ -68,5 +70,7 @@ private:
     struct UFNode;
     vector<UFNode> uf_nodes;
 };
+
+}
 
 #endif /* structures_union_find_hpp */

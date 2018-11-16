@@ -28,6 +28,8 @@
 #include <memory>
 #include <mutex>
 
+namespace structures {
+
 using namespace std;
 
 
@@ -407,7 +409,7 @@ auto ImmutableList<T>::create_node(const T& data, shared_ptr<const Node> next) -
     });
 }
 
-
+}
 
 
 #endif /* structures_immutable_list_hpp */

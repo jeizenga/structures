@@ -29,6 +29,8 @@
 #include <cmath>
 #include <limits>
 
+namespace structures {
+
 using namespace std;
 
 /*
