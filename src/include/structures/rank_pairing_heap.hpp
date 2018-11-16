@@ -29,6 +29,8 @@
 #include <vector>
 #include <cstdlib>
 
+namespace structures {
+
 using namespace std;
 
 /**
@@ -389,5 +391,6 @@ void RankPairingHeap<T, PriorityType, Compare>::print(ostream& os) const {
     }
 }
 
+}
 
 #endif /* structures_rank_pairing_heap_hpp */

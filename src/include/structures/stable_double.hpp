@@ -290,4 +290,6 @@ inline bool StableDouble::operator!=(const double other) const {
     return *this != StableDouble(other);
 }
 
+}
+
 #endif /* structures_stable_double_hpp */

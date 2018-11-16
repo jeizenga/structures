@@ -7,4 +7,5 @@ Contents currently include:
 - Min-max heap
 - Rank-pairing heap
 - An immutable linked list
+- A self-filtering binary heap priority queue
 - An overflow- and underflow-resistant alternative to floating point numbers
