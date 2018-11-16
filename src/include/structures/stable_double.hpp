@@ -98,6 +98,16 @@ public:
     inline bool operator<=(const double other) const;
     inline bool operator>=(const double other) const;
     
+    // Equality operators with StableDoubles
+    
+    inline bool operator==(const StableDouble& other) const;
+    inline bool operator!=(const StableDouble& other) const;
+    
+    // Equality operators with standard doubles
+    
+    inline bool operator==(const double other) const;
+    inline bool operator!=(const double other) const;
+    
     friend ostream& operator<<(ostream& out, const StableDouble& val);
     
 private:
@@ -263,6 +273,21 @@ inline bool StableDouble::operator>=(const double other) const {
     return *this >= StableDouble(other);
 }
 
+inline bool StableDouble::operator==(const StableDouble& other) const {
+    return ((log_abs_x == other.log_abs_x) &&
+            (log_abs_x == numeric_limits<double>::lowest() || positive == other.positive));
+}
+
+inline bool StableDouble::operator!=(const StableDouble& other) const {
+    return !(*this == other);
+}
+
+inline bool StableDouble::operator==(const double other) const {
+    return *this == StableDouble(other);
+}
+
+inline bool StableDouble::operator!=(const double other) const {
+    return *this != StableDouble(other);
 }
 
 #endif /* structures_stable_double_hpp */

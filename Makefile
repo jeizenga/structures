@@ -7,19 +7,19 @@ LIBDIR = lib
 LIBOBJ = $(OBJDIR)/union_find.o $(OBJDIR)/suffix_tree.o $(OBJDIR)/stable_double.o 
 LIB = $(LIBDIR)/libstructures.a
 TESTOBJ =$(OBJDIR)/tests.o
-HEADERS = $(INCDIR)/suffix_tree.hpp $(INCDIR)/union_find.hpp $(INCDIR)/min_max_heap.hpp $(INCDIR)/immutable_list.hpp $(INCDIR)/stable_double.hpp 
+HEADERS = $(INCDIR)/suffix_tree.hpp $(INCDIR)/union_find.hpp $(INCDIR)/min_max_heap.hpp $(INCDIR)/immutable_list.hpp $(INCDIR)/stable_double.hpp $(INCDIR)/rank_pairing_heap.hpp
 CXX = g++
 CPPFLAGS = -std=c++11 -m64 -g -I$(INCSEARCHDIR)
 
 
-all:
+all: 
 	make $(BINDIR)/test
 
 .PHONY: clean .pre_build
 clean:
 	find $(BINDIR) $(OBJDIR) $(LIBDIR) -type f -delete
 
-$(BINDIR)/test: $(TESTOBJ) $(LIB) 
+$(BINDIR)/test: $(TESTOBJ) $(HEADERS) $(LIB) 
 	$(CXX) $(CPPFLAGS) -o $(BINDIR)/test $(TESTOBJ) $(LIB)
 
 $(OBJDIR)/suffix_tree.o: $(SRCDIR)/suffix_tree.cpp $(INCDIR)/suffix_tree.hpp
@@ -32,6 +32,8 @@ $(OBJDIR)/stable_double.o: $(SRCDIR)/stable_double.cpp $(INCDIR)/stable_double.h
 	$(CXX) $(CPPFLAGS) -c $(SRCDIR)/stable_double.cpp -o $(OBJDIR)/stable_double.o 
 
 # MinMaxHeap is header-only
+
+# RankPairingHeap is header-only
 
 $(OBJDIR)/tests.o: $(SRCDIR)/tests.cpp $(HEADERS)
 	$(CXX) $(CPPFLAGS) -c $(SRCDIR)/tests.cpp -o $(OBJDIR)/tests.o 
