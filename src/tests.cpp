@@ -26,7 +26,8 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
-#include <priority_queue>
+#include <queue>
+#include <unordered_map>
 #include <random>
 #include <cassert>
 
@@ -35,7 +36,7 @@
 #include "structures/min_max_heap.hpp"
 #include "structures/immutable_list.hpp"
 #include "structures/stable_double.hpp"
-#include "structures/stable_double.hpp"
+#include "structures/rank_pairing_heap.hpp"
 
 using namespace std;
 
@@ -743,7 +744,7 @@ void test_union_find_with_random_examples() {
     cerr << "All randomized UnionFind tests successful!" << endl;
 }
 
-void check_heap_invariants(MinMaxHeap<int>& heap, list<int>& vals) {
+void check_min_max_heap_invariants(MinMaxHeap<int>& heap, list<int>& vals) {
     
     if (heap.size() != vals.size()) {
         cerr << "size from heap " << heap.size() << " mismatches direct size " << vals.size() << endl;
@@ -789,14 +790,14 @@ void test_min_max_heap() {
         }
         MinMaxHeap<int> heap(vals.begin(), vals.end());
         
-        check_heap_invariants(heap, vals);
+        check_min_max_heap_invariants(heap, vals);
         
         for (int i = heapify_size; i < max_size; i++) {
             int next = distr(gen);
             vals.push_back(next);
             heap.push(next);
             if (i % check_frequency == 0) {
-                check_heap_invariants(heap, vals);
+                check_min_max_heap_invariants(heap, vals);
             }
         }
         
@@ -810,7 +811,7 @@ void test_min_max_heap() {
                 vals.erase(min_element(vals.begin(), vals.end()));
             }
             if (i % check_frequency == 0) {
-                check_heap_invariants(heap, vals);
+                check_min_max_heap_invariants(heap, vals);
             }
         }
         
@@ -823,7 +824,7 @@ void test_min_max_heap() {
             vals.push_back(next);
             fresh_heap.emplace(next);
             if (i % check_frequency == 0) {
-                check_heap_invariants(fresh_heap, vals);
+                check_min_max_heap_invariants(fresh_heap, vals);
             }
         }
         
@@ -837,7 +838,7 @@ void test_min_max_heap() {
                 vals.erase(min_element(vals.begin(), vals.end()));
             }
             if (i % check_frequency == 0) {
-                check_heap_invariants(fresh_heap, vals);
+                check_min_max_heap_invariants(fresh_heap, vals);
             }
         }
         
@@ -1035,9 +1036,139 @@ void test_stable_doubles() {
 
 }
 
+/// hack a std::priority_queue to provide the same behavior and make sure
+/// it matches the RankPairingHeap for orthogonal validation
+void test_rank_pairing_heap() {
+    int num_items = 100;
+    int num_trials = 10000;
+    
+    random_device rd;
+    default_random_engine gen(rd());
+    
+    // we have to ensure unique priorities in order to get the same
+    // pop order from the two queues, which can affect the final priority
+    // that an item gets popped with
+    vector<int> priorities;
+    int priority_window_size = 100;
+    int num_refills = 0;
+    auto get_priority = [&]() {
+        if (priorities.empty()) {
+            for (int i = num_refills * priority_window_size; i < (num_refills + 1) * priority_window_size; i++) {
+                priorities.push_back(i);
+            }
+            num_refills++;
+            shuffle(priorities.begin(), priorities.end(), gen);
+        }
+        int priority = priorities.back();
+        priorities.pop_back();
+        return priority;
+    };
+    
+    enum heap_operation_t {POP = 0, PUSH = 1, REPRIORITIZE = 2};
+    uniform_int_distribution<int> operation_distr(0, 2);
+    
+    for (int trial = 0; trial < num_trials; trial++) {
+        
+        num_refills = 0;
+        priorities.clear();
+        
+        priority_queue<pair<int, int>> std_queue;
+        unordered_map<int, int> popped_values;
+        
+        RankPairingHeap<int, int> rp_heap;
+        
+        int next_item = 0;
+        
+        vector<pair<int, int>> std_order, rp_order;
+        
+        while (next_item < num_items || !rp_heap.empty()) {
+            
+            heap_operation_t op = (heap_operation_t) operation_distr(gen);
+            switch (op) {
+                case POP:
+                    
+                    if (!rp_heap.empty()) {
+                        pair<int, int> rp_top = rp_heap.top();
+                        while (popped_values.count(std_queue.top().second)) {
+                            std_queue.pop();
+                        }
+                        pair<int, int> std_top = std_queue.top();
+                        popped_values[std_top.second] = std_top.first;
+                        rp_heap.pop();
+                        std_queue.pop();
+                        
+                        // the order is swapped to coax the std queue to look at priority first
+                        rp_order.emplace_back(rp_top.second, rp_top.first);
+                        std_order.emplace_back(std_top);
+                    }
+                    
+                    break;
+                    
+                case PUSH:
+                    
+                    // only add if we haven't hit our budget of items
+                    if (next_item < num_items) {
+                        int priority = get_priority();
+                        rp_heap.push_or_reprioritize(next_item, priority);
+                        std_queue.push(make_pair(priority, next_item));
+                        next_item++;
+                    }
+                    
+                    break;
+                    
+                case REPRIORITIZE:
+                    
+                    if (next_item > 0) {
+                        int item = uniform_int_distribution<int>(0, next_item - 1)(gen);
+                        int priority = get_priority();
+                        rp_heap.push_or_reprioritize(item, priority);
+                        if (!popped_values.count(item)) {
+                            std_queue.emplace(priority, item);
+                        }
+                    }
+                    break;
+            }
+        }
+        
+        assert(rp_order.size() == std_order.size());
+        
+        // check that the two queues dealt with things in the same order, allowing
+        // for arbitrary tie breaks for equal priorities
+        auto rp_range_begin = rp_order.begin();
+        auto std_range_begin = std_order.begin();
+        while (rp_range_begin != rp_order.end()) {
+            // find the range of values with this priority
+            auto rp_range_end = rp_range_begin;
+            auto std_range_end = std_range_begin;
+            while (rp_range_end == rp_order.end() ? false : rp_range_end->first == rp_range_begin->first) {
+                rp_range_end++;
+            }
+            while (std_range_end == std_order.end() ? false : std_range_end->first == std_range_begin->first) {
+                std_range_end++;
+            }
+            // ranges should be the same length
+            assert(std_range_end - std_range_begin == rp_range_end - rp_range_begin);
+            // induce a fixed order on this range
+            sort(rp_range_begin, rp_range_end);
+            sort(std_range_begin, std_range_end);
+            for (auto rp_iter = rp_range_begin, std_iter = std_range_begin;
+                 rp_iter != rp_range_end;
+                 rp_iter++, std_iter++) {
+                
+                assert(*rp_iter == *std_iter);
+            }
+            
+            rp_range_begin = rp_range_end;
+            std_range_begin = std_range_end;
+        }
+    }
+    cerr << "All RankPairingHeap tests successful!" << endl;
+}
+
 int main(void) {
     test_stable_doubles();
     test_immutable_list();
+    test_rank_pairing_heap();
     test_min_max_heap();
     test_union_find_with_curated_examples();
     test_union_find_with_random_examples();

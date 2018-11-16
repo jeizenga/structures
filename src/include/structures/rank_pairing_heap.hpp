@@ -59,12 +59,14 @@ public:
     inline void pop();
     
     /// Return true if there are no items in the heap, else false.
-    inline void empty() const;
+    inline bool empty() const;
     
     /// Return the number of items on the heap.
-    size_t size() const;
+    inline size_t size() const;
     
-
+    /// A print function for debugging
+    void print(ostream& os) const;
+    
 private:
     
     class Node;
@@ -81,7 +83,7 @@ private:
     /// Find the nodes in the heap by value
     unordered_map<T, Node*> current_nodes;
     
-    /// Root of the tree
+    /// Roots of the half trees
     forward_list<Node*> roots;
     
     /// Tracker to enable size query
@@ -89,10 +91,8 @@ private:
     
     /// Comparator we are using to select maximum
     Compare compare;
+    
 };
-
-
-
 
 
 
@@ -103,7 +103,7 @@ private:
 template <typename T, typename PriorityType, typename Compare>
 class RankPairingHeap<T, PriorityType, Compare>::Node {
 public:
-    Node(const T& value, const PriorityType& priority) value(value, priority) {}
+    Node(const T& value, const PriorityType& priority) : value(value, priority) {}
     ~Node() {
         delete left;
         delete right;
@@ -114,7 +114,7 @@ public:
     Node* parent = nullptr;
     Node* left = nullptr;
     Node* right = nullptr;
-}
+};
 
 template <typename T, typename PriorityType, typename Compare>
 RankPairingHeap<T, PriorityType, Compare>::RankPairingHeap() {
@@ -122,14 +122,16 @@ RankPairingHeap<T, PriorityType, Compare>::RankPairingHeap() {
 }
 
 template <typename T, typename PriorityType, typename Compare>
-RankPairingHeap<T, PriorityType, Compare>::RankPairingHeap(const Compare& compare) compare(compare) {
+RankPairingHeap<T, PriorityType, Compare>::RankPairingHeap(const Compare& compare) : compare(compare) {
     // nothing to do
 }
 
 template <typename T, typename PriorityType, typename Compare>
 RankPairingHeap<T, PriorityType, Compare>::~RankPairingHeap() {
-    // clean up the heap tree
-    delete root;
+    // clean up the heap trees
+    for (Node* half_tree_root : roots) {
+        delete half_tree_root;
+    }
 }
 
 template <typename T, typename PriorityType, typename Compare>
@@ -139,7 +141,7 @@ void RankPairingHeap<T, PriorityType, Compare>::link(Node* winner, Node* loser) 
         winner->rank++;
     }
     // place winner's left subtree on loser's right subtree
-    loser->right = winner->left
+    loser->right = winner->left;
     if (loser->right) {
         loser->right->parent = loser;
     }
@@ -174,7 +176,7 @@ inline void RankPairingHeap<T, PriorityType, Compare>::push_or_reprioritize(cons
         // we've seen this value before
         if (current_location->second) {
             // it hasn't been popped yet, give it the new priority
-            reprioritize(node, priority);
+            reprioritize(current_location->second, priority);
         }
     }
     else {
@@ -201,7 +203,6 @@ inline void RankPairingHeap<T, PriorityType, Compare>::reprioritize(Node* node, 
     if (compare(node->value.second, priority)) {
         // we're giving it a higher priority than it currently has
         
-        // we don't need to rearrange this tree because it's already the highest priority element
         node->value.second = priority;
         
         if (!node->parent) {
@@ -224,24 +225,25 @@ inline void RankPairingHeap<T, PriorityType, Compare>::reprioritize(Node* node, 
         else {
             // remove this node from the tree and put its right subtree in its place
             Node* next_parent = node->parent;
-            node->parent = nullptr
-            node->right->parent = next_parent;
+            node->parent = nullptr;
             if (next_parent->left == node) {
                 next_parent->left = node->right;
             }
             else {
                 next_parent->right = node->right;
             }
+            if (node->right) {
+                node->right->parent = next_parent;
+            }
+            node->right = nullptr;
             
             place_half_tree(node);
             
             // restore the rank property above this parent
             while (next_parent) {
-                if (next_parent == root) {
-                    next_parent->rank = next_parent->left->rank + 1;
-                }
-                else {
-                    // this is an internal parent, make it a (1,1), (1, 2), or, (0, i) node
+                
+                // make it a (1,1), (1, 2), or, (0, i) node
+                if (next_parent->right && next_parent->left) {
                     uint64_t next_rank = max(next_parent->left->rank, next_parent->right->rank);
                     if (next_rank - min(next_parent->left->rank, next_parent->right->rank) <= 1) {
                         next_rank++;
@@ -253,6 +255,16 @@ inline void RankPairingHeap<T, PriorityType, Compare>::reprioritize(Node* node, 
                         next_parent->rank = next_rank;
                     }
                 }
+                else if (next_parent->right) {
+                    next_parent->rank = next_parent->right->rank + 1;
+                }
+                else if (next_parent->left) {
+                    next_parent->rank = next_parent->left->rank + 1;
+                }
+                else {
+                    next_parent->rank = 0;
+                }
+                
                 next_parent = next_parent->parent;
             }
         }
@@ -266,6 +278,7 @@ inline void RankPairingHeap<T, PriorityType, Compare>::pop() {
     num_items--;
     // mark this value as popped
     current_nodes[top().first] = nullptr;
+    
     
     // remove the current first root
     Node* first_root = roots.front();
@@ -301,21 +314,22 @@ inline void RankPairingHeap<T, PriorityType, Compare>::pop() {
     
     // one-pass algorithm over the roots described in paper
     vector<Node*> buckets;
-    for (Node* half_tree_root : spine) {
+    for (Node* half_tree_root : new_roots) {
         
         // compact the ranks to make 1-nodes
         half_tree_root->rank = half_tree_root->left ? half_tree_root->left->rank + 1 : 0;
         
         // ensure that we have enough buckets
-        while (buckets.size() + 1 < half_tree_root->rank) {
+        while (buckets.size() <= half_tree_root->rank) {
             buckets.push_back(nullptr);
         }
         
         // what's in the bucket right now?
-        Node* other_root = buckets[half_tree_root->rank];
+        
+        uint64_t bucket_num = half_tree_root->rank;
+        Node* other_root = buckets[bucket_num];
         if (other_root) {
             // there's already a tree in this bucket
-            // TODO: is it actually necessary to compare at this stage?
             if (compare(half_tree_root->value.second, other_root->value.second)) {
                 // the current tree wins, link and place it
                 link(other_root, half_tree_root);
@@ -327,7 +341,7 @@ inline void RankPairingHeap<T, PriorityType, Compare>::pop() {
                 place_half_tree(half_tree_root);
             }
             // empty the bucket
-            buckets[half_tree_root->rank] = nullptr;
+            buckets[bucket_num] = nullptr;
         }
         else {
             // the bucket is empty, fill it with the current half tree
@@ -351,6 +365,32 @@ inline bool RankPairingHeap<T, PriorityType, Compare>::empty() const {
 template <typename T, typename PriorityType, typename Compare>
 inline size_t RankPairingHeap<T, PriorityType, Compare>::size() const {
     return num_items;
+}
+
+template <typename T, typename PriorityType, typename Compare>
+void RankPairingHeap<T, PriorityType, Compare>::print(ostream& os) const {
+    
+    function<void(const Node*, int)> print_tree = [&](const Node* node, int level) {
+        if (!node) {
+            os << "." << endl;
+        }
+        else {
+            os << node->value.first << "," << node->value.second << "," << node->rank << "\tR->\t";
+            print_tree(node->right, level + 1);
+            for (int i = 0; i < level; i++) {
+                os << "\t\t";
+            }
+            os << "^" << (node->parent ? to_string(node->parent->value.first) : ".") << "\tL->\t";
+            print_tree(node->left, level + 1);
+        }
+    };
+    
+    int tree_num = 0;
+    for (auto& root : roots) {
+        os << "tree number " << tree_num << endl;
+        print_tree(root, 0);
+        tree_num++;
+    }
 }
 
 

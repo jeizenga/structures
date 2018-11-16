@@ -12,14 +12,14 @@ CXX = g++
 CPPFLAGS = -std=c++11 -m64 -g -I$(INCSEARCHDIR)
 
 
-all:
+all: 
 	make $(BINDIR)/test
 
 .PHONY: clean .pre_build
 clean:
 	find $(BINDIR) $(OBJDIR) $(LIBDIR) -type f -delete
 
-$(BINDIR)/test: $(TESTOBJ) $(LIB) 
+$(BINDIR)/test: $(TESTOBJ) $(HEADERS) $(LIB) 
 	$(CXX) $(CPPFLAGS) -o $(BINDIR)/test $(TESTOBJ) $(LIB)
 
 $(OBJDIR)/suffix_tree.o: $(SRCDIR)/suffix_tree.cpp $(INCDIR)/suffix_tree.hpp
