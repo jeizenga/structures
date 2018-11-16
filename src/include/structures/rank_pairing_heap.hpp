@@ -24,7 +24,8 @@
 #ifndef structures_rank_pairing_heap_hpp
 #define structures_rank_pairing_heap_hpp
 
-#include <forward_list>
+#include <unordered_set>
+#include <unordered_map>
 #include <vector>
 #include <cstdlib>
 
@@ -84,7 +85,8 @@ private:
     unordered_map<T, Node*> current_nodes;
     
     /// Roots of the half trees
-    forward_list<Node*> roots;
+    Node* first_root = nullptr;
+    unordered_set<Node*> other_roots;
     
     /// Tracker to enable size query
     size_t num_items = 0;
@@ -129,7 +131,8 @@ RankPairingHeap<T, PriorityType, Compare>::RankPairingHeap(const Compare& compar
 template <typename T, typename PriorityType, typename Compare>
 RankPairingHeap<T, PriorityType, Compare>::~RankPairingHeap() {
     // clean up the heap trees
-    for (Node* half_tree_root : roots) {
+    delete first_root;
+    for (Node* half_tree_root : other_roots) {
         delete half_tree_root;
     }
 }
@@ -153,17 +156,18 @@ void RankPairingHeap<T, PriorityType, Compare>::link(Node* winner, Node* loser) 
 template <typename T, typename PriorityType, typename Compare>
 void RankPairingHeap<T, PriorityType, Compare>::place_half_tree(Node* node) {
     
-    if (roots.empty()) {
+    if (first_root == nullptr) {
         // this is the first value
-        roots.push_front(node);
+        first_root = node;
     }
     else if (compare(top().second, node->value.second)) {
         // this is the new maximum
-        roots.push_front(node);
+        other_roots.insert(first_root);
+        first_root = node;
     }
     else {
         // this is not the new maximum
-        roots.insert_after(roots.begin(), node);
+        other_roots.insert(node);
     }
 }
 
@@ -194,7 +198,7 @@ inline void RankPairingHeap<T, PriorityType, Compare>::push_or_reprioritize(cons
 
 template <typename T, typename PriorityType, typename Compare>
 inline const pair<T, PriorityType>& RankPairingHeap<T, PriorityType, Compare>::top() const {
-    return roots.front()->value;
+    return first_root->value;
 }
 
 template <typename T, typename PriorityType, typename Compare>
@@ -206,20 +210,12 @@ inline void RankPairingHeap<T, PriorityType, Compare>::reprioritize(Node* node, 
         node->value.second = priority;
         
         if (!node->parent) {
+            // this is the root of a half tree
             if (compare(top().second, priority)) {
                 // this is now the highest priority root, so we need to move it to the front
-                // TODO: how do I efficiently find this root in the list?
-                //       could switch to one front Node* and an unordered_set<Node*> ...
-                auto prev_iter = roots.begin();
-                auto iter = prev_iter;
-                ++iter;
-                for (; iter != roots.end(); ++iter, ++prev_iter) {
-                    if (*iter == node) {
-                        roots.erase_after(prev_iter);
-                        roots.push_front(node);
-                        break;
-                    }
-                }
+                other_roots.insert(first_root);
+                other_roots.erase(node);
+                first_root = node;
             }
         }
         else {
@@ -239,7 +235,7 @@ inline void RankPairingHeap<T, PriorityType, Compare>::reprioritize(Node* node, 
             
             place_half_tree(node);
             
-            // restore the rank property above this parent
+            // restore the type-2 rank property above the node
             while (next_parent) {
                 
                 // make it a (1,1), (1, 2), or, (0, i) node
@@ -279,14 +275,8 @@ inline void RankPairingHeap<T, PriorityType, Compare>::pop() {
     // mark this value as popped
     current_nodes[top().first] = nullptr;
     
-    
-    // remove the current first root
-    Node* first_root = roots.front();
-    roots.pop_front();
-    
     // collect the other roots for later processing
-    forward_list<Node*> new_roots;
-    new_roots.swap(roots);
+    vector<Node*> new_roots;
     
     // disassemble the first tree and collect the right spine
     if (first_root->left) {
@@ -294,23 +284,29 @@ inline void RankPairingHeap<T, PriorityType, Compare>::pop() {
         // have to have one iteration outside the loop since we travel
         // left the first time
         Node* prev_spine_node = first_root->left;
-        new_roots.push_front(prev_spine_node);
+        new_roots.push_back(prev_spine_node);
         prev_spine_node->parent = nullptr;
         
         while (prev_spine_node->right) {
 
-            new_roots.push_front(prev_spine_node->right);
+            new_roots.push_back(prev_spine_node->right);
             prev_spine_node->right = nullptr;
             
-            prev_spine_node = new_roots.front();
+            prev_spine_node = new_roots.back();
             prev_spine_node->parent = nullptr;
-            
         }
     }
     
-    // get rid of the root
+    // collect the other current roots too
+    for (Node* half_tree_root : other_roots) {
+        new_roots.push_back(half_tree_root);
+    }
+    other_roots.clear();
+    
+    // get rid of the first root
     first_root->left = nullptr; // so it won't delete the other nodes
     delete first_root;
+    first_root = nullptr;
     
     // one-pass algorithm over the roots described in paper
     vector<Node*> buckets;
@@ -345,7 +341,7 @@ inline void RankPairingHeap<T, PriorityType, Compare>::pop() {
         }
         else {
             // the bucket is empty, fill it with the current half tree
-            buckets[half_tree_root->rank] = half_tree_root;
+            buckets[bucket_num] = half_tree_root;
         }
     }
     
@@ -359,7 +355,7 @@ inline void RankPairingHeap<T, PriorityType, Compare>::pop() {
 
 template <typename T, typename PriorityType, typename Compare>
 inline bool RankPairingHeap<T, PriorityType, Compare>::empty() const {
-    return roots.empty();
+    return first_root == nullptr;
 }
 
 template <typename T, typename PriorityType, typename Compare>
@@ -385,11 +381,11 @@ void RankPairingHeap<T, PriorityType, Compare>::print(ostream& os) const {
         }
     };
     
-    int tree_num = 0;
-    for (auto& root : roots) {
-        os << "tree number " << tree_num << endl;
+    os << "first tree: " << endl;
+    print_tree(first_root, 0);
+    for (auto& root : other_roots) {
+        os << "secondary tree: " << endl;
         print_tree(root, 0);
-        tree_num++;
     }
 }
 
