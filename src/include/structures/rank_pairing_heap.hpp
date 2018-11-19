@@ -67,9 +67,6 @@ public:
     /// Return the number of items on the heap.
     inline size_t size() const;
     
-    /// A print function for debugging
-    void print(ostream& os) const;
-    
 private:
     
     class Node;
@@ -363,32 +360,6 @@ inline bool RankPairingHeap<T, PriorityType, Compare>::empty() const {
 template <typename T, typename PriorityType, typename Compare>
 inline size_t RankPairingHeap<T, PriorityType, Compare>::size() const {
     return num_items;
-}
-
-template <typename T, typename PriorityType, typename Compare>
-void RankPairingHeap<T, PriorityType, Compare>::print(ostream& os) const {
-    
-    function<void(const Node*, int)> print_tree = [&](const Node* node, int level) {
-        if (!node) {
-            os << "." << endl;
-        }
-        else {
-            os << node->value.first << "," << node->value.second << "," << node->rank << "\tR->\t";
-            print_tree(node->right, level + 1);
-            for (int i = 0; i < level; i++) {
-                os << "\t\t";
-            }
-            os << "^" << (node->parent ? to_string(node->parent->value.first) : ".") << "\tL->\t";
-            print_tree(node->left, level + 1);
-        }
-    };
-    
-    os << "first tree: " << endl;
-    print_tree(first_root, 0);
-    for (auto& root : other_roots) {
-        os << "secondary tree: " << endl;
-        print_tree(root, 0);
-    }
 }
 
 }
