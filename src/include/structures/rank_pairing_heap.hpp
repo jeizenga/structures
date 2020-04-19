@@ -28,6 +28,7 @@
 #include <unordered_map>
 #include <vector>
 #include <cstdlib>
+#include <cstdint>
 
 namespace structures {
 
