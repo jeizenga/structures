@@ -132,11 +132,11 @@ ostream& operator<<(ostream& out, const StableDouble& val);
 
 
 inline double StableDouble::add_log(const double log_x, const double log_y) const {
-    return log_x > log_y ? log_x + log(1.0 + exp(log_y - log_x)) : log_y + log(1.0 + exp(log_x - log_y));
+    return log_x > log_y ? log_x + log1p(exp(log_y - log_x)) : log_y + log(exp(log_x - log_y));
 }
 
 inline double StableDouble::subtract_log(const double log_x, const double log_y) const {
-    return log_x + log(1.0 - exp(log_y - log_x));
+    return log_x + log1p(-exp(log_y - log_x));
 }
 
 inline double StableDouble::to_double() const {
